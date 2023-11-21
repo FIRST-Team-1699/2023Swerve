@@ -1,0 +1,40 @@
+package frc.robot;
+
+import java.io.File;
+import java.io.IOException;
+
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants.SwerveConstants;
+import swervelib.SwerveDrive;
+import swervelib.parser.SwerveParser;
+
+public class Drive {
+    private SwerveDrive swerve;
+
+    public Drive() {
+        try {
+            this.swerve = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve")).createSwerveDrive(Units.feetToMeters(15.1));
+        } catch (IOException e) {
+            System.out.print("Swerve build failed");
+        }
+    }
+
+    public void teleopDrive(XboxController controller) {
+        double vX = controller.getLeftX() * SwerveConstants.kMaxSpeed * .2; // scaled to 20% for testing, X velocity 
+        double vY = -controller.getLeftY() * SwerveConstants.kMaxSpeed * .2; // scaled to 20% for testing, Y velocity
+        double vR = controller.getRightX() * SwerveConstants.kMaxRotationalSpeed; // rotational velocity
+        swerve.drive(new Translation2d(vX, vY), vR, true, false);
+    }
+
+    /** For autonomous, manually set the module states
+     * @param moduleStates
+     * FL, FR, BL, BR
+     */
+    public void setModuleStates(SwerveModuleState[] moduleStates) {
+        swerve.setModuleStates(moduleStates, false);
+    }
+}
