@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants.ControllerConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -19,7 +20,7 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
 
-  private XboxController controller = new XboxController(0);
+  private XboxController controller = new XboxController(ControllerConstants.kDriverPort);
   private Drive swerve = new Drive();
 
   @Override

@@ -24,9 +24,25 @@ public class Drive {
     }
 
     public void teleopDrive(XboxController controller) {
-        double vX = controller.getLeftX() * SwerveConstants.kMaxSpeed * .2; // scaled to 20% for testing, X velocity 
-        double vY = -controller.getLeftY() * SwerveConstants.kMaxSpeed * .2; // scaled to 20% for testing, Y velocity
-        double vR = controller.getRightX() * SwerveConstants.kMaxRotationalSpeed; // rotational velocity
+        // get controller inputs
+        double vX = controller.getLeftX();
+        double vY = -controller.getLeftY();
+        double vR = controller.getRightX();
+        // apply deadbands
+        if(Math.abs(vX) < SwerveConstants.kDeadband) {
+            vX = 0;
+        }
+        if(Math.abs(vY) < SwerveConstants.kDeadband) {
+            vY = 0;
+        }
+        if(Math.abs(vR) < SwerveConstants.kDeadband) {
+            vR = 0;
+        }
+        // scale outputs
+        vX = controller.getLeftX() * SwerveConstants.kMaxSpeed * .2; // scaled to 20% for testing, X velocity 
+        vY = -controller.getLeftY() * SwerveConstants.kMaxSpeed * .2; // scaled to 20% for testing, Y velocity
+        vR *= SwerveConstants.kMaxRotationalSpeed; // rotational velocity
+        // drive swerve
         swerve.drive(new Translation2d(vX, vY), vR, true, false);
     }
 
