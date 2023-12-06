@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.SwerveConstants;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class Drive {
     private SwerveDrive swerve;
@@ -21,6 +23,8 @@ public class Drive {
         } catch (IOException e) {
             System.out.print("Swerve build failed");
         }
+
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     }
 
     public void teleopDrive(XboxController controller) {
@@ -41,8 +45,8 @@ public class Drive {
         // scale outputs
         vX = controller.getLeftX() * SwerveConstants.kMaxSpeed * .50; // scaled to 20% for testing, X velocity 
         vY = -controller.getLeftY() * SwerveConstants.kMaxSpeed * .50; // scaled to 20% for testing, Y velocity
-        vR *= -1;
         vR *= SwerveConstants.kMaxRotationalSpeed * .50; // rotational velocity
+        System.out.println(vR);
         // drive swerve
         swerve.drive(new Translation2d(vX, vY), vR, true, false);
     }
