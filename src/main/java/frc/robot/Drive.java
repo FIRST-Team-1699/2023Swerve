@@ -43,10 +43,10 @@ public class Drive {
             vR = 0;
         }
         // scale outputs
-        vX *= SwerveConstants.kMaxSpeed * .10; // scaled to 50% for testing, X velocity 
-        vY *= SwerveConstants.kMaxSpeed * .10; // scaled to 50% for testing, Y velocity
-        vR *= SwerveConstants.kMaxRotationalSpeed * 1.0; // rotational velocity
-        System.out.println(vR);
+        vX *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, X velocity 
+        vY *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, Y velocity
+        vR *= SwerveConstants.kMaxRotationalSpeed * .50; // rotational velocity
+
         // drive swerve
         swerve.drive(new Translation2d(vX, vY), vR, false, false);
     }
