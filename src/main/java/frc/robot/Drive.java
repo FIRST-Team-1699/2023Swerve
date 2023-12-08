@@ -31,7 +31,7 @@ public class Drive {
         // get controller inputs
         double vX = controller.getLeftX();
         double vY = -controller.getLeftY();
-        double vR = controller.getRightX();
+        double vR = -controller.getRightX();
         // apply deadbands
         if(Math.abs(vX) < SwerveConstants.kDeadband) {
             vX = 0;
