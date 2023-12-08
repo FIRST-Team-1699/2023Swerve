@@ -16,22 +16,22 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class Drive {
     private SwerveDrive swerve;
-
-    public Drive() {
+    private XboxController driveController;
+    public Drive(XboxController controller) {
         try {
             this.swerve = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve")).createSwerveDrive(Units.feetToMeters(15.1));
         } catch (IOException e) {
             System.out.print("Swerve build failed");
         }
-
+        this.driveController = controller;
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     }
 
-    public void teleopDrive(XboxController controller) {
+    public void teleopDrive() {
         // get controller inputs
-        double vX = -controller.getLeftX();
-        double vY = -controller.getLeftY();
-        double vR = -controller.getRightX();
+        double vX = -driveController.getLeftX();
+        double vY = -driveController.getLeftY();
+        double vR = -driveController.getRightX();
         // apply deadbands
         if(Math.abs(vX) < SwerveConstants.kDeadband) {
             vX = 0;
@@ -51,11 +51,22 @@ public class Drive {
         swerve.drive(new Translation2d(vX, vY), vR, false, false);
     }
 
-    /** For autonomous, manually set the module states
+    /** Manually set the module states
      * @param moduleStates
      * FL, FR, BL, BR
      */
     public void setModuleStates(SwerveModuleState[] moduleStates) {
         swerve.setModuleStates(moduleStates, false);
+    }
+
+    /** Set an X to keep the swerve from moving */
+    public void lock() {
+        SwerveModuleState[] moduleStates = {
+            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(-45))
+        }
+        setModuleStates(moduleStates);
     }
 }
