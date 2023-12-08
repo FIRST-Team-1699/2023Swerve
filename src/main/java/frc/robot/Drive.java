@@ -29,7 +29,7 @@ public class Drive {
 
     public void teleopDrive(XboxController controller) {
         // get controller inputs
-        double vX = controller.getLeftX();
+        double vX = -controller.getLeftX();
         double vY = -controller.getLeftY();
         double vR = -controller.getRightX();
         // apply deadbands
@@ -43,12 +43,12 @@ public class Drive {
             vR = 0;
         }
         // scale outputs
-        vX *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, X velocity 
-        vY *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, Y velocity
-        vR *= SwerveConstants.kMaxRotationalSpeed * .50; // rotational velocity
+        vX *= SwerveConstants.kMaxSpeed * .10; // scaled to 50% for testing, X velocity 
+        vY *= SwerveConstants.kMaxSpeed * .10; // scaled to 50% for testing, Y velocity
+        vR *= SwerveConstants.kMaxRotationalSpeed * 1.0; // rotational velocity
         System.out.println(vR);
         // drive swerve
-        swerve.drive(new Translation2d(vX, vY), vR, true, false);
+        swerve.drive(new Translation2d(vX, vY), vR, false, false);
     }
 
     /** For autonomous, manually set the module states
