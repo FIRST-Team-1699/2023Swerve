@@ -4,9 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Drive.DriveState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -21,7 +27,7 @@ public class Robot extends TimedRobot {
    */
 
   private XboxController controller = new XboxController(ControllerConstants.kDriverPort);
-  private Drive swerve = new Drive();
+  private Drive swerve = new Drive(controller);
 
   @Override
   public void robotInit() {}
@@ -30,17 +36,30 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    swerve.setTrajectory(TrajectoryGenerator.generateTrajectory(new Pose2d(),
+     null,
+    new Pose2d(new Translation2d(1, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)), 
+    new TrajectoryConfig(4, 2)));
+    swerve.setState(DriveState.FOLLOW_TRAJ);
+  }
 
   @Override
   public void autonomousPeriodic() {}
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    swerve.setState(DriveState.TELEOP_DRIVE);
+  }
 
   @Override
   public void teleopPeriodic() {
-    swerve.teleopDrive(controller);
+    if(controller.getXButton()) {
+      swerve.setState(DriveState.LOCK);
+    } else {
+      swerve.setState(DriveState.TELEOP_DRIVE);
+    }
+    swerve.update();
   }
 
   @Override
