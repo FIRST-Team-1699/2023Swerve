@@ -4,14 +4,18 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.Drive.DriveState;
 
 /**
@@ -28,24 +32,36 @@ public class Robot extends TimedRobot {
 
   private XboxController controller = new XboxController(ControllerConstants.kDriverPort);
   private Drive swerve = new Drive(controller);
+  private ArrayList<Translation2d> interiorWaypoints = new ArrayList<Translation2d>();
+  private Trajectory testTraj; 
+  private FollowTrajectory action;
 
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    interiorWaypoints.add(new Translation2d(1, 1));
+    testTraj = TrajectoryGenerator.generateTrajectory(new Pose2d(), 
+    interiorWaypoints,
+    new Pose2d(new Translation2d(1, 2), Rotation2d.fromDegrees(90)),
+    new TrajectoryConfig(SwerveConstants.kMaxSpeed, SwerveConstants.kMaxSpeed/2));
+    action = new FollowTrajectory(testTraj, swerve);
+  }
 
   @Override
   public void robotPeriodic() {}
 
   @Override
   public void autonomousInit() {
-    swerve.setTrajectory(TrajectoryGenerator.generateTrajectory(new Pose2d(),
-     null,
-    new Pose2d(new Translation2d(1, Rotation2d.fromDegrees(0)), Rotation2d.fromDegrees(0)), 
-    new TrajectoryConfig(4, 2)));
-    swerve.setState(DriveState.FOLLOW_TRAJ);
+    action.start();
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if(action.isFinished()) {
+      action.finish();
+    } else {
+      action.run();
+    }
+  }
 
   @Override
   public void teleopInit() {
