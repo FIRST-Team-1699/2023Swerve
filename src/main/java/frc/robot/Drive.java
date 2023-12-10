@@ -3,6 +3,8 @@ package frc.robot;
 import java.io.File;
 import java.io.IOException;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -16,7 +18,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class Drive {
     private SwerveDrive swerve;
-
+   
     public Drive() {
         try {
             this.swerve = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve")).createSwerveDrive(Units.feetToMeters(15.1));
@@ -43,12 +45,12 @@ public class Drive {
             vR = 0;
         }
         // scale outputs
-        vX *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, X velocity 
-        vY *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, Y velocity
-        vR *= SwerveConstants.kMaxRotationalSpeed * .50; // rotational velocity
+        vX *= SwerveConstants.kMaxSpeed; // scaled to 50% for testing, X velocity 
+        vY *= SwerveConstants.kMaxSpeed; // scaled to 50% for testing, Y velocity
+        vR *= SwerveConstants.kMaxRotationalSpeed; // rotational velocity
 
         // drive swerve
-        swerve.drive(new Translation2d(vX, vY), vR, false, false);
+        swerve.drive(new Translation2d(vX, vY), vR, true, false);
     }
 
     /** For autonomous, manually set the module states
@@ -57,5 +59,9 @@ public class Drive {
      */
     public void setModuleStates(SwerveModuleState[] moduleStates) {
         swerve.setModuleStates(moduleStates, false);
+    }
+
+    public void zeroOdometry() {
+        swerve.resetOdometry(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 }

@@ -40,6 +40,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    if(controller.getYButtonPressed()) {
+      swerve.zeroOdometry();
+    }
     swerve.teleopDrive(controller);
   }
 

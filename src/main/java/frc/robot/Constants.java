@@ -9,7 +9,7 @@ public class Constants {
 
     public static class SwerveConstants {
         public static final double kDeadband = .15;
-        public static final double kMaxSpeed = Units.feetToMeters(15.1);
-        public static final double kMaxRotationalSpeed = 4; // DOES THIS NEED TO BE DIFFERENT THAN MAX SPEED?
+        public static final double kMaxSpeed = Units.feetToMeters(20);
+        public static final double kMaxRotationalSpeed = 10;
     }
 }
