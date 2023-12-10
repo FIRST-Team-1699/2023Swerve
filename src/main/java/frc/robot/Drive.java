@@ -5,9 +5,9 @@ import java.io.IOException;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -57,9 +57,9 @@ public class Drive {
             vR = 0;
         }
         // scale outputs
-        vX *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, X velocity 
-        vY *= SwerveConstants.kMaxSpeed * .50; // scaled to 50% for testing, Y velocity
-        vR *= SwerveConstants.kMaxRotationalSpeed * .50; // rotational velocity
+        vX *= SwerveConstants.kMaxSpeed; 
+        vY *= SwerveConstants.kMaxSpeed;
+        vR *= SwerveConstants.kMaxRotationalSpeed;
 
         // drive swerve
         swerve.drive(new Translation2d(vX, vY), vR, false, false);
@@ -85,14 +85,13 @@ public class Drive {
     public void update() {
         switch (currentState) {
             case FOLLOW_TRAJ:
-                if(trajTimer.get() < trajectory.getTotalTimeSeconds()) {
-                    Trajectory.State targetState = trajectory.sample(trajTimer.get());
-                    ChassisSpeeds targetSpeeds = driveController.calculate(swerve.getPose(), targetState, Rotation2d.fromDegrees(0));
-                    swerve.drive(targetSpeeds);
-                } else {
-                    setState(DriveState.LOCK);
-                    trajTimer.stop();
-                }
+                // if(trajTimer.get() < trajectory.getTotalTimeSeconds()) {
+                //     Trajectory.State targetState = trajectory.sample(trajTimer.get());
+                //     ChassisSpeeds targetSpeeds = driveController.calculate(swerve.getPose(), targetState, Rotation2d.fromDegrees(0));
+                //     swerve.drive(targetSpeeds);
+                // } else {
+                //     trajTimer.stop();
+                // }
                 break;
             case LOCK:
                 lock();
@@ -129,6 +128,18 @@ public class Drive {
 
     public DriveState getState() {
         return this.currentState;
+    }
+
+    /** For auto
+     * @param states
+     * FL, FR, BL, BR
+     */
+    public void setModuleStates(SwerveModuleState[] states) {
+        swerve.setModuleStates(states, false);
+    }
+
+    public Pose2d getPose() {
+        return swerve.getPose();
     }
 
     public enum DriveState {
