@@ -1,7 +1,6 @@
 package frc.robot.team1699.lib;
 
 import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwappableBoolean {
