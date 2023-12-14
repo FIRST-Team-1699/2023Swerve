@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.team1699.Constants.ControllerConstants;
 import frc.robot.team1699.lib.SwappableBoolean;
+import frc.robot.team1699.lib.SwappableDouble;
 import frc.robot.team1699.subsystems.Drive;
 
 /**
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     SwappableBoolean.update();
+    SwappableDouble.update();
   }
 
   @Override
