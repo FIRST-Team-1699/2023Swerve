@@ -65,7 +65,7 @@ public class Drive {
 
         if(fieldRelativeRotation.getValue()) {
             ChassisSpeeds speeds = swerveController.getTargetSpeeds(leftX, leftY, rightX, rightY, swerve.getYaw().getRadians(), SwerveConstants.kMaxVelocity);
-            Translation2d translation = SwerveController.getTranslation2d(speeds)
+            Translation2d translation = SwerveController.getTranslation2d(speeds);
             swerve.drive(translation, speeds.omegaRadiansPerSecond, fieldRelativeDrive.getValue(), openLoopSwerve.getValue());
         } else {
             swerve.drive(new Translation2d(leftX, leftY), rightX, fieldRelativeDrive.getValue(), openLoopSwerve.getValue());
