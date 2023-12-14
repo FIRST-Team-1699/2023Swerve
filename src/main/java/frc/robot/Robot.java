@@ -6,7 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.ControllerConstants;
+import frc.robot.team1699.Constants.ControllerConstants;
+import frc.robot.team1699.lib.SwappableBoolean;
+import frc.robot.team1699.subsystems.Drive;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,7 +29,9 @@ public class Robot extends TimedRobot {
   public void robotInit() {}
 
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    SwappableBoolean.update();
+  }
 
   @Override
   public void autonomousInit() {}
@@ -40,9 +44,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if(controller.getYButtonPressed()) {
-      swerve.zeroOdometry();
-    }
     swerve.teleopDrive(controller);
   }
 

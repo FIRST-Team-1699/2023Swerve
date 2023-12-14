@@ -11,7 +11,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.team1699.Constants.SwerveConstants;
+import frc.robot.team1699.lib.SwappableBoolean;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -21,6 +22,9 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Drive {
     private SwerveDrive swerve;
     private SwerveController swerveController;
+    private SwappableBoolean fieldRelativeDrive;
+    private SwappableBoolean fieldRelativeRotation;
+    private SwappableBoolean openLoopSwerve;
    
     public Drive() {
         try {
@@ -29,32 +33,43 @@ public class Drive {
         } catch (IOException e) {
             System.out.print("Swerve build failed");
         }
-
+        fieldRelativeDrive = new SwappableBoolean("field_relative_drive", true);
+        fieldRelativeRotation = new SwappableBoolean("field_relative_rotation", false);
+        openLoopSwerve = new SwappableBoolean("open_loop_swerve", false);
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     }
 
     public void teleopDrive(XboxController controller) {
         // get controller inputs
-        double vX = -controller.getLeftX();
-        double vY = -controller.getLeftY();
-        double vR = -controller.getRightX();
+        double leftX = -controller.getLeftX();
+        double leftY = -controller.getLeftY();
+        double rightX = -controller.getRightX();
+        double rightY = -controller.getRightY();
         // apply deadbands
-        if(Math.abs(vX) < SwerveConstants.kDeadband) {
-            vX = 0;
+        if(Math.abs(leftX) < SwerveConstants.kDeadband) {
+            leftX = 0;
         }
-        if(Math.abs(vY) < SwerveConstants.kDeadband) {
-            vY = 0;
+        if(Math.abs(leftY) < SwerveConstants.kDeadband) {
+            leftY = 0;
         }
-        if(Math.abs(vR) < SwerveConstants.kDeadband) {
-            vR = 0;
+        if(Math.abs(rightX) < SwerveConstants.kDeadband) {
+            rightX = 0;
+        }
+        if(Math.abs(rightY) < SwerveConstants.kDeadband) {
+            rightY = 0;
         }
         // scale outputs
-        vX *= SwerveConstants.kMaxSpeed; // scaled to 50% for testing, X velocity 
-        vY *= SwerveConstants.kMaxSpeed; // scaled to 50% for testing, Y velocity
-        vR *= SwerveConstants.kMaxRotationalSpeed; // rotational velocity
+        leftX *= SwerveConstants.kMaxVelocity; // scaled to 50% for testing, X velocity 
+        leftY *= SwerveConstants.kMaxVelocity; // scaled to 50% for testing, Y velocity
+        rightX *= SwerveConstants.kMaxAngularVelocity; // rotational velocity
 
-        // drive swerve
-        swerve.drive(new Translation2d(vX, vY), vR, true, false);
+        if(fieldRelativeRotation.getValue()) {
+            ChassisSpeeds speeds = swerveController.getTargetSpeeds(leftX, leftY, rightX, rightY, swerve.getYaw().getRadians(), SwerveConstants.kMaxVelocity);
+            Translation2d translation = SwerveController.getTranslation2d(speeds)
+            swerve.drive(translation, speeds.omegaRadiansPerSecond, fieldRelativeDrive.getValue(), openLoopSwerve.getValue());
+        } else {
+            swerve.drive(new Translation2d(leftX, leftY), rightX, fieldRelativeDrive.getValue(), openLoopSwerve.getValue());
+        }
     }
 
     /** For autonomous, manually set the module states
