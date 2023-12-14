@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.team1699.Constants.SwerveConstants;
 import frc.robot.team1699.lib.SwappableBoolean;
+import frc.robot.team1699.lib.SwappableDouble;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -25,6 +26,8 @@ public class Drive {
     private SwappableBoolean fieldRelativeDrive;
     private SwappableBoolean fieldRelativeRotation;
     private SwappableBoolean openLoopSwerve;
+    private SwappableDouble linearVelocityFactor;
+    private SwappableDouble angularVelocityFactor;
    
     public Drive() {
         try {
@@ -36,6 +39,8 @@ public class Drive {
         fieldRelativeDrive = new SwappableBoolean("field_relative_drive", true);
         fieldRelativeRotation = new SwappableBoolean("field_relative_rotation", false);
         openLoopSwerve = new SwappableBoolean("open_loop_swerve", false);
+        linearVelocityFactor = new SwappableDouble("linear_velocity_factor", .5);
+        angularVelocityFactor = new SwappableDouble("angular_velocity_factor", 1);
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     }
 
@@ -58,16 +63,16 @@ public class Drive {
         if(Math.abs(rightY) < SwerveConstants.kDeadband) {
             rightY = 0;
         }
-        // scale outputs
-        leftX *= SwerveConstants.kMaxVelocity; // scaled to 50% for testing, X velocity 
-        leftY *= SwerveConstants.kMaxVelocity; // scaled to 50% for testing, Y velocity
-        rightX *= SwerveConstants.kMaxAngularVelocity; // rotational velocity
-
+    
         if(fieldRelativeRotation.getValue()) {
-            ChassisSpeeds speeds = swerveController.getTargetSpeeds(leftX, leftY, rightX, rightY, swerve.getYaw().getRadians(), SwerveConstants.kMaxVelocity);
+            ChassisSpeeds speeds = swerveController.getTargetSpeeds(leftX, leftY, rightX, rightY, swerve.getYaw().getRadians(), SwerveConstants.kMaxVelocity * linearVelocityFactor.getValue());
             Translation2d translation = SwerveController.getTranslation2d(speeds);
             swerve.drive(translation, speeds.omegaRadiansPerSecond, fieldRelativeDrive.getValue(), openLoopSwerve.getValue());
         } else {
+            // scale outputs
+        leftX *= SwerveConstants.kMaxVelocity * linearVelocityFactor.getValue(); // X velocity 
+        leftY *= SwerveConstants.kMaxVelocity * linearVelocityFactor.getValue(); // Y velocity
+        rightX *= SwerveConstants.kMaxAngularVelocity * angularVelocityFactor.getValue(); // rotational velocity
             swerve.drive(new Translation2d(leftX, leftY), rightX, fieldRelativeDrive.getValue(), openLoopSwerve.getValue());
         }
     }
