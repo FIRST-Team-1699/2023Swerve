@@ -1,6 +1,8 @@
 package frc.robot.team1699.lib.auto.modes;
 
 import java.util.ArrayList;
+
+import edu.wpi.first.math.trajectory.Trajectory;
 import frc.robot.team1699.lib.auto.events.Event;
 import frc.robot.team1699.lib.auto.events.FollowTrajectory;
 import frc.robot.team1699.subsystems.Drive;
@@ -9,8 +11,8 @@ public class DriveForward extends AutoMode {
     private ArrayList<Event> events;
     private int i;
 
-    public DriveForward(Drive swerve) {
-        events.add(new FollowTrajectory(null, swerve));
+    public DriveForward(Trajectory trajectory, Drive swerve) {
+        events.add(new FollowTrajectory(trajectory, swerve));
 
         i = 0;
     }

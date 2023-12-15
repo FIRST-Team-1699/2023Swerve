@@ -4,9 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.team1699.Constants.ControllerConstants;
+import frc.robot.team1699.lib.auto.modes.AutoMode;
+import frc.robot.team1699.lib.auto.modes.DriveForward;
+import frc.robot.team1699.lib.auto.trajectory.ProcessedTrajectory;
 import frc.robot.team1699.subsystems.Drive;
 import frc.robot.team1699.subsystems.Drive.DriveState;
 
@@ -25,24 +30,25 @@ public class Robot extends TimedRobot {
   private XboxController controller = new XboxController(ControllerConstants.kDriverPort);
   private Drive swerve = new Drive(controller);
 
-
+  private AutoMode auto;
+  private Trajectory trajectory;
 
   @Override
-  public void robotInit() {
-
-  }
+  public void robotInit() {}
 
   @Override
   public void robotPeriodic() {}
 
   @Override
   public void autonomousInit() {
-
+    trajectory = new ProcessedTrajectory(Filesystem.getDeployDirectory().toPath().resolve("output/DriveFiveFeet.wpilib.json")).getTrajectory();
+    auto = new DriveForward(trajectory, swerve);
+    auto.initialize();
   }
 
   @Override
   public void autonomousPeriodic() {
-
+    auto.run();
   }
 
   @Override
