@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.team1699.subsystems;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,9 @@ import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -14,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.team1699.Constants.SwerveConstants;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -27,6 +29,7 @@ public class Drive {
     private Timer trajTimer = new Timer();
     private Trajectory trajectory;
     private HolonomicDriveController driveController;
+    private boolean doneWithTraj = true;
 
     private SwerveDrive swerve;
     private XboxController controller;
@@ -85,13 +88,14 @@ public class Drive {
     public void update() {
         switch (currentState) {
             case FOLLOW_TRAJ:
-                // if(trajTimer.get() < trajectory.getTotalTimeSeconds()) {
-                //     Trajectory.State targetState = trajectory.sample(trajTimer.get());
-                //     ChassisSpeeds targetSpeeds = driveController.calculate(swerve.getPose(), targetState, Rotation2d.fromDegrees(0));
-                //     swerve.drive(targetSpeeds);
-                // } else {
-                //     trajTimer.stop();
-                // }
+                if(trajTimer.get() < trajectory.getTotalTimeSeconds()) {
+                    Trajectory.State targetState = trajectory.sample(trajTimer.get());
+                    ChassisSpeeds targetSpeeds = driveController.calculate(swerve.getPose(), targetState, Rotation2d.fromDegrees(0));
+                    swerve.drive(targetSpeeds);
+                } else {
+                    trajTimer.stop();
+                    doneWithTraj = true;
+                }
                 break;
             case LOCK:
                 lock();
@@ -108,6 +112,7 @@ public class Drive {
         switch (wantedState) {
             case FOLLOW_TRAJ:
                 trajTimer.restart();
+                doneWithTraj = false;
                 break;
             case LOCK:
                 break;
@@ -119,7 +124,7 @@ public class Drive {
         }
     }
 
-    public void setState(DriveState state) {
+    public void setWantedState(DriveState state) {
         if(this.wantedState != state) {
             wantedState = state;
             handleStateTransition();
@@ -140,6 +145,10 @@ public class Drive {
 
     public Pose2d getPose() {
         return swerve.getPose();
+    }
+
+    public boolean doneWithTraj() {
+        return doneWithTraj;
     }
 
     public enum DriveState {

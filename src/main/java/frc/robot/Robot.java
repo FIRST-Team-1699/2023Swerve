@@ -4,19 +4,11 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.SwerveConstants;
-import frc.robot.Drive.DriveState;
+import frc.robot.team1699.Constants.ControllerConstants;
+import frc.robot.team1699.subsystems.Drive;
+import frc.robot.team1699.subsystems.Drive.DriveState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -32,18 +24,12 @@ public class Robot extends TimedRobot {
 
   private XboxController controller = new XboxController(ControllerConstants.kDriverPort);
   private Drive swerve = new Drive(controller);
-  private ArrayList<Translation2d> interiorWaypoints = new ArrayList<Translation2d>();
-  private Trajectory testTraj; 
-  private FollowTrajectory action;
+
+
 
   @Override
   public void robotInit() {
-    interiorWaypoints.add(new Translation2d(1, 1));
-    testTraj = TrajectoryGenerator.generateTrajectory(new Pose2d(), 
-    interiorWaypoints,
-    new Pose2d(new Translation2d(1, 2), Rotation2d.fromDegrees(90)),
-    new TrajectoryConfig(SwerveConstants.kMaxSpeed, SwerveConstants.kMaxSpeed/2));
-    action = new FollowTrajectory(testTraj, swerve);
+
   }
 
   @Override
@@ -51,29 +37,25 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    action.start();
+
   }
 
   @Override
   public void autonomousPeriodic() {
-    if(action.isFinished()) {
-      action.finish();
-    } else {
-      action.run();
-    }
+
   }
 
   @Override
   public void teleopInit() {
-    swerve.setState(DriveState.TELEOP_DRIVE);
+    swerve.setWantedState(DriveState.TELEOP_DRIVE);
   }
 
   @Override
   public void teleopPeriodic() {
     if(controller.getXButton()) {
-      swerve.setState(DriveState.LOCK);
+      swerve.setWantedState(DriveState.LOCK);
     } else {
-      swerve.setState(DriveState.TELEOP_DRIVE);
+      swerve.setWantedState(DriveState.TELEOP_DRIVE);
     }
     swerve.update();
   }
