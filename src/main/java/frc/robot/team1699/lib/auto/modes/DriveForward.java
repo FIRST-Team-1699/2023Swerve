@@ -12,6 +12,7 @@ public class DriveForward extends AutoMode {
     private int i;
 
     public DriveForward(Trajectory trajectory, Drive swerve) {
+        events = new ArrayList<Event>();
         events.add(new FollowTrajectory(trajectory, swerve));
 
         i = 0;
@@ -22,24 +23,26 @@ public class DriveForward extends AutoMode {
     }
 
     public void run() {
-        Event currentEvent = events.get(i);
-        if(currentEvent.isFinished()) {
-            currentEvent.finish();
-            i++;
-            events.get(i).initialize();
-        } else {
-            currentEvent.update();
+        if(i < events.size()) {
+            Event currentEvent = events.get(i);
+            if(currentEvent.isFinished()) {
+                currentEvent.finish();
+                i++;
+                if(i < events.size()) {
+                    events.get(i).initialize();
+                }
+            } else {
+                currentEvent.update();
+            }
         }
     }
 
     public boolean isFinished() {
-        if(i > events.size()) {
+        if(i >= events.size()) {
             return true;
         }
         return false;
     }
 
-    public void finish() {
-        System.out.println("Done with automode");
-    }
+    public void finish() {}
 }

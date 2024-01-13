@@ -48,7 +48,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    auto.run();
+    if(auto.isFinished()) {
+      auto.finish();
+    } else {
+      auto.run();
+    }
+    swerve.update();
   }
 
   @Override

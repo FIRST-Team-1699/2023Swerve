@@ -18,9 +18,7 @@ public class FollowTrajectory extends Event {
         swerve.setWantedState(DriveState.FOLLOW_TRAJ);
     }
 
-    public void update() {
-        swerve.update();
-    }
+    public void update() {}
     
     public boolean isFinished() {
         if(swerve.doneWithTraj() == true) {

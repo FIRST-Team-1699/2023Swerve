@@ -25,7 +25,6 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class Drive {
     private DriveState currentState = DriveState.LOCK;
     private DriveState wantedState = DriveState.LOCK;
-
     private Timer trajTimer = new Timer();
     private Trajectory trajectory;
     private HolonomicDriveController driveController;
@@ -40,7 +39,7 @@ public class Drive {
             System.out.print("Swerve build failed");
         }
         this.controller = controller;
-        this.driveController = new HolonomicDriveController(new PIDController(.7, 0, 0), new PIDController(.7, 0, 0), new ProfiledPIDController(.5, 0, 0, new TrapezoidProfile.Constraints(4, 3)));
+        this.driveController = new HolonomicDriveController(new PIDController(.01, 0, 0), new PIDController(.01, 0, 0), new ProfiledPIDController(.1, 0, 0, new TrapezoidProfile.Constraints(4, 3)));
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     }
 
@@ -65,7 +64,7 @@ public class Drive {
         vR *= SwerveConstants.kMaxRotationalSpeed;
 
         // drive swerve
-        swerve.drive(new Translation2d(vX, vY), vR, false, false);
+        swerve.drive(new Translation2d(vX, vY), vR, true, false);
     }
 
     public void setTrajectory(Trajectory trajectory) {
@@ -86,6 +85,7 @@ public class Drive {
     }
 
     public void update() {
+        System.out.println(getState());
         switch (currentState) {
             case FOLLOW_TRAJ:
                 if(trajTimer.get() < trajectory.getTotalTimeSeconds()) {
@@ -95,6 +95,7 @@ public class Drive {
                 } else {
                     trajTimer.stop();
                     doneWithTraj = true;
+                    setWantedState(DriveState.LOCK);
                 }
                 break;
             case LOCK:
@@ -111,7 +112,8 @@ public class Drive {
     private void handleStateTransition() {
         switch (wantedState) {
             case FOLLOW_TRAJ:
-                trajTimer.restart();
+                trajTimer.reset();
+                trajTimer.start();
                 doneWithTraj = false;
                 break;
             case LOCK:
@@ -120,8 +122,8 @@ public class Drive {
                 break;
             default:
                 break;
-
         }
+        currentState = wantedState;
     }
 
     public void setWantedState(DriveState state) {
