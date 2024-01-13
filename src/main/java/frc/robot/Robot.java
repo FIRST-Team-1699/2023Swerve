@@ -4,9 +4,16 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.ControllerConstants;
+import frc.robot.team1699.Constants.ControllerConstants;
+import frc.robot.team1699.lib.auto.modes.AutoMode;
+import frc.robot.team1699.lib.auto.modes.DriveForward;
+import frc.robot.team1699.lib.auto.trajectory.ProcessedTrajectory;
+import frc.robot.team1699.subsystems.Drive;
+import frc.robot.team1699.subsystems.Drive.DriveState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -21,7 +28,10 @@ public class Robot extends TimedRobot {
    */
 
   private XboxController controller = new XboxController(ControllerConstants.kDriverPort);
-  private Drive swerve = new Drive();
+  private Drive swerve = new Drive(controller);
+
+  private AutoMode auto;
+  private Trajectory trajectory;
 
   @Override
   public void robotInit() {}
@@ -30,20 +40,35 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    trajectory = new ProcessedTrajectory(Filesystem.getDeployDirectory().toPath().resolve("output/DriveFiveFeet.wpilib.json")).getTrajectory();
+    auto = new DriveForward(trajectory, swerve);
+    auto.initialize();
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if(auto.isFinished()) {
+      auto.finish();
+    } else {
+      auto.run();
+    }
+    swerve.update();
+  }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    swerve.setWantedState(DriveState.TELEOP_DRIVE);
+  }
 
   @Override
   public void teleopPeriodic() {
-    if(controller.getYButtonPressed()) {
-      swerve.zeroOdometry();
+    if(controller.getXButton()) {
+      swerve.setWantedState(DriveState.LOCK);
+    } else {
+      swerve.setWantedState(DriveState.TELEOP_DRIVE);
     }
-    swerve.teleopDrive(controller);
+    swerve.update();
   }
 
   @Override
