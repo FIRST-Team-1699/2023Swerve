@@ -2,16 +2,13 @@ package frc.robot.team1699.subsystems;
 
 import java.io.File;
 import java.io.IOException;
-import edu.wpi.first.math.controller.HolonomicDriveController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -26,8 +23,10 @@ public class Drive {
     private DriveState currentState = DriveState.LOCK;
     private DriveState wantedState = DriveState.LOCK;
     private Timer trajTimer = new Timer();
-    private Trajectory trajectory;
-    private HolonomicDriveController driveController;
+    private PathPlannerTrajectory trajectory;
+    private PPHolonomicDriveController driveController;
+    private PIDConstants translationConstants = new PIDConstants(0.01);
+    private PIDConstants rotationConstants = new PIDConstants(0.2);
     private boolean doneWithTraj = true;
 
     private SwerveDrive swerve;
@@ -39,7 +38,7 @@ public class Drive {
             System.out.print("Swerve build failed");
         }
         this.controller = controller;
-        this.driveController = new HolonomicDriveController(new PIDController(.01, 0, 0), new PIDController(.01, 0, 0), new ProfiledPIDController(.1, 0, 0, new TrapezoidProfile.Constraints(4, 3)));
+        this.driveController = new PPHolonomicDriveController(translationConstants, rotationConstants, SwerveConstants.kMaxSpeed, Units.inchesToMeters(14.5));
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     }
 
@@ -67,7 +66,7 @@ public class Drive {
         swerve.drive(new Translation2d(vX, vY), vR, true, false);
     }
 
-    public void setTrajectory(Trajectory trajectory) {
+    public void setTrajectory(PathPlannerTrajectory trajectory) {
         this.trajectory = trajectory;
     }
 
@@ -85,12 +84,13 @@ public class Drive {
     }
 
     public void update() {
-        System.out.println(getState());
         switch (currentState) {
             case FOLLOW_TRAJ:
                 if(trajTimer.get() < trajectory.getTotalTimeSeconds()) {
-                    Trajectory.State targetState = trajectory.sample(trajTimer.get());
-                    ChassisSpeeds targetSpeeds = driveController.calculate(swerve.getPose(), targetState, Rotation2d.fromDegrees(0));
+                    PathPlannerTrajectory.State targetState = trajectory.sample(trajTimer.get());
+                    ChassisSpeeds targetSpeeds = driveController.calculateRobotRelativeSpeeds(swerve.getPose(), targetState);
+                    System.out.println(swerve.getPose().getRotation().getDegrees());
+                    System.out.println(targetState.getTargetHolonomicPose().getRotation().getDegrees());
                     swerve.drive(targetSpeeds);
                 } else {
                     trajTimer.stop();
@@ -115,6 +115,7 @@ public class Drive {
                 trajTimer.reset();
                 trajTimer.start();
                 doneWithTraj = false;
+                swerve.resetOdometry(trajectory.getInitialDifferentialPose());
                 break;
             case LOCK:
                 break;

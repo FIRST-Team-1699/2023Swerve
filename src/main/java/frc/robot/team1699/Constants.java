@@ -12,7 +12,7 @@ public class Constants {
     public static class SwerveConstants {
         public static final double kDeadband = .15;
         public static final double kMaxSpeed = Units.feetToMeters(15.1);
-        public static final double kMaxRotationalSpeed = 4; // DOES THIS NEED TO BE DIFFERENT THAN MAX SPEED?
+        public static final double kMaxRotationalSpeed = 15; // DOES THIS NEED TO BE DIFFERENT THAN MAX SPEED?
         public static final double kTrackWidthDiv2 = Units.inchesToMeters(10.25);
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             new Translation2d(kTrackWidthDiv2, kTrackWidthDiv2),

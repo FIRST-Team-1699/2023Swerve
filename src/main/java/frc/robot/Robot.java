@@ -4,14 +4,16 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.Filesystem;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.team1699.Constants.ControllerConstants;
 import frc.robot.team1699.lib.auto.modes.AutoMode;
-import frc.robot.team1699.lib.auto.modes.DriveForward;
-import frc.robot.team1699.lib.auto.trajectory.ProcessedTrajectory;
+import frc.robot.team1699.lib.auto.modes.DoubleTrajWithWait;
+import frc.robot.team1699.lib.auto.modes.FollowTraj;
 import frc.robot.team1699.subsystems.Drive;
 import frc.robot.team1699.subsystems.Drive.DriveState;
 
@@ -31,7 +33,8 @@ public class Robot extends TimedRobot {
   private Drive swerve = new Drive(controller);
 
   private AutoMode auto;
-  private Trajectory trajectory;
+  private PathPlannerTrajectory trajectoryOne;
+  private PathPlannerTrajectory trajectoryTwo;
 
   @Override
   public void robotInit() {}
@@ -41,8 +44,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    trajectory = new ProcessedTrajectory(Filesystem.getDeployDirectory().toPath().resolve("output/DriveFiveFeet.wpilib.json")).getTrajectory();
-    auto = new DriveForward(trajectory, swerve);
+    trajectoryOne = PathPlannerPath.fromPathFile("TestPathThree").getTrajectory(new ChassisSpeeds(), new Rotation2d());
+    // trajectoryTwo = PathPlannerPath.fromPathFile("TestPathFour").getTrajectory(new ChassisSpeeds(), Rotation2d.fromDegrees(90));
+    auto = new FollowTraj(trajectoryOne, swerve);
     auto.initialize();
   }
 

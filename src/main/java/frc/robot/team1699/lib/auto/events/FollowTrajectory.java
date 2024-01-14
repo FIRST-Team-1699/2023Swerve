@@ -1,14 +1,14 @@
 package frc.robot.team1699.lib.auto.events;
 
-import edu.wpi.first.math.trajectory.Trajectory;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
 import frc.robot.team1699.subsystems.Drive;
 import frc.robot.team1699.subsystems.Drive.DriveState;
 
 public class FollowTrajectory extends Event {
-    private Trajectory trajectory;
+    private PathPlannerTrajectory trajectory;
     private Drive swerve;
 
-    public FollowTrajectory(Trajectory trajectory, Drive swerve) {
+    public FollowTrajectory(PathPlannerTrajectory trajectory, Drive swerve) {
         this.trajectory = trajectory;
         this.swerve = swerve;
     }
